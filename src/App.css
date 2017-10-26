@@ -9,6 +9,19 @@
   width: 100%;
   justify-content: center;
 }
+.colored-text{
+  margin: 0.5rem 0 0;
+  font-size: 1.5rem;
+  color: rgb(247, 243, 46);
+}
+button{
+  background-color:rgb(247, 243, 46);
+  font-size: 1.3rem;
+  margin-left: 0.4rem;
+  border-style: none;
+  color: rgb(62, 77, 0);
+  border-radius: 0.5rem;
+}
 .square{
   font-size: 3rem;
   display: flex;

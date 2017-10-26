@@ -30,25 +30,59 @@ class App extends Component {
     this.checkPCWin();
   }
 
+  result(status){
+    if (status === 'win'){
+      alert('Winner Winner Chicken Dinner!');
+      this.boardArr = [['','',''],['','',''],['','','']];
+    }
+    if (status === 'lose'){
+      alert('you lost');
+      this.boardArr = [['','',''],['','',''],['','','']];
+    }
+    if (status === 'tie'){
+      alert('tie game');
+      this.boardArr = [['','',''],['','',''],['','','']];
+    }
+  }
+
   pcTurn(){
-    //random number between 0-inclusive and multiplier-exclusive
-    // Math.floor(Math.random()*9);
 
     //choose random spot on array
     let randRow = Math.floor(Math.random()*3);
     let randCol = Math.floor(Math.random()*3);
-    //check if it is empty and:
-    if(this.boardArr[randRow][randCol] !== this.playerToken &&
-       this.boardArr[randRow][randCol] !== this.pcToken )
+
+    //loop until free spot chosen. if the board is full escape loop.
+    let usedSpot = false;
+    let emptySpaces = false;
+    while (usedSpot === false){
+      //check if free spot available. if not, invert usedSpot and break out of loop
+      //eslint-disable-next-line
+      this.boardArr.forEach((element)=>{
+        element.forEach((element2)=> {
+          if(element2 === ''){
+            emptySpaces = true;
+          }
+        });
+      });
+      if(emptySpaces === false ){
+        this.result('tie');
+        break;
+      }
+
+      if(this.boardArr[randRow][randCol] === this.playerToken ||
+         this.boardArr[randRow][randCol] === this.pcToken )
       {
-        this.markForPC(randRow,randCol);
-        // console.log(randRow,randCol);
-      } 
-    else {
-      // console.log(randRow,randCol);
-      alert('pc chose a used spot');
-      console.log(randRow,randCol);
+          randRow = Math.floor(Math.random()*3);
+          randCol = Math.floor(Math.random()*3);
+      }
+      else
+      {
+          this.markForPC(randRow,randCol);
+          usedSpot = true;
+      }
+      
     }
+
   }
 
   checkPlayerWin(){
@@ -57,37 +91,37 @@ class App extends Component {
          if( this.boardArr[0][0] === this.playerToken &&
              this.boardArr[1][1] === this.playerToken &&
              this.boardArr[2][2] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     else if( this.boardArr[0][2] === this.playerToken &&
              this.boardArr[1][1] === this.playerToken &&
              this.boardArr[2][0] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     //horizontals
     else if( this.boardArr[0][0] === this.playerToken &&
              this.boardArr[0][1] === this.playerToken &&
              this.boardArr[0][2] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     else if( this.boardArr[1][0] === this.playerToken &&
              this.boardArr[1][1] === this.playerToken &&
              this.boardArr[1][2] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     else if( this.boardArr[2][0] === this.playerToken &&
              this.boardArr[2][1] === this.playerToken &&
              this.boardArr[2][2] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     //verticals
     else if( this.boardArr[0][0] === this.playerToken &&
              this.boardArr[1][0] === this.playerToken &&
              this.boardArr[2][0] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     else if( this.boardArr[0][1] === this.playerToken &&
              this.boardArr[1][1] === this.playerToken &&
              this.boardArr[2][1] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
     else if( this.boardArr[0][2] === this.playerToken &&
              this.boardArr[1][2] === this.playerToken &&
              this.boardArr[2][2] === this.playerToken )
-             { alert('Winner Winner Chicken Dinner!') }
+             { this.result('win') }
   }
 
   checkPCWin(){
@@ -96,42 +130,50 @@ class App extends Component {
          if( this.boardArr[0][0] === this.pcToken &&
              this.boardArr[1][1] === this.pcToken &&
              this.boardArr[2][2] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     else if( this.boardArr[0][2] === this.pcToken &&
              this.boardArr[1][1] === this.pcToken &&
              this.boardArr[2][0] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     //horizontals
     else if( this.boardArr[0][0] === this.pcToken &&
              this.boardArr[0][1] === this.pcToken &&
              this.boardArr[0][2] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     else if( this.boardArr[1][0] === this.pcToken &&
              this.boardArr[1][1] === this.pcToken &&
              this.boardArr[1][2] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     else if( this.boardArr[2][0] === this.pcToken &&
              this.boardArr[2][1] === this.pcToken &&
              this.boardArr[2][2] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     //verticals
     else if( this.boardArr[0][0] === this.pcToken &&
              this.boardArr[1][0] === this.pcToken &&
              this.boardArr[2][0] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     else if( this.boardArr[0][1] === this.pcToken &&
              this.boardArr[1][1] === this.pcToken &&
              this.boardArr[2][1] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
     else if( this.boardArr[0][2] === this.pcToken &&
              this.boardArr[1][2] === this.pcToken &&
              this.boardArr[2][2] === this.pcToken )
-             { alert('you lost') }
+             { this.result('lose') }
   }
 
   render() {
     return (
       <div className="App">
+
+        {/* options for player */}
+        <div className='row colored-text'>
+          <div>Choose your token: </div>
+          <button>X</button>
+          <button>O</button>
+        </div>
+      
         {/* board rows with play spaces */}
         <div className='row'>
           <div className='square' onClick={()=>{ this.mark(0,0) }}>{this.boardArr[0][0]}</div>
