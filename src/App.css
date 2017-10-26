@@ -1,4 +1,21 @@
 .App {
   text-align: center;
   font-size: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+.row{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+.square{
+  font-size: 3rem;
+  display: flex;
+  background-color: rgb(177, 221, 82);
+  align-items: center;
+  justify-content: center;
+  height: 4rem;
+  width: 4rem;
+  margin: 0.5rem;
 }
