@@ -18,12 +18,43 @@ class App extends Component {
   }
 
   mark(index1,index2){
+    //mark spot
     this.boardArr[index1][index2] = this.playerToken;
     this.forceUpdate();
+
     this.checkPlayerWin();
-    this.checkPCWin();
+
+    //---------tie check after PLAYER last move
+    let emptySpaces = false;
+    this.boardArr.forEach((element)=>{
+      element.forEach((innerElement)=> {
+        if(innerElement === ''){
+          emptySpaces = true;
+        }
+      });
+    });
+    if(emptySpaces === false ){
+      this.result();
+      return;
+    }
     this.pcTurn();
+    this.checkPCWin();
+    
+    //-------tie check after COMPUTERS last move
+    emptySpaces = false;
+    this.boardArr.forEach((element)=>{
+      element.forEach((innerElement)=> {
+        if(innerElement === ''){
+          emptySpaces = true;
+        }
+      });
+    });
+    if(emptySpaces === false ){
+      this.result();
+    }
+    
   }
+
   markForPC(index1,index2){
     this.boardArr[index1][index2] = this.pcToken;
     this.forceUpdate();
@@ -33,54 +64,35 @@ class App extends Component {
   result(status){
     if (status === 'win'){
       alert('Winner Winner Chicken Dinner!');
-      this.boardArr = [['','',''],['','',''],['','','']];
-    }
-    if (status === 'lose'){
+    } else if (status === 'lose'){
       alert('you lost');
-      this.boardArr = [['','',''],['','',''],['','','']];
-    }
-    if (status === 'tie'){
+    } else {
       alert('tie game');
-      this.boardArr = [['','',''],['','',''],['','','']];
     }
+    this.boardArr = [['','',''],['','',''],['','','']];
   }
 
   pcTurn(){
-
+    
     //choose random spot on array
     let randRow = Math.floor(Math.random()*3);
     let randCol = Math.floor(Math.random()*3);
 
     //loop until free spot chosen. if the board is full escape loop.
     let usedSpot = false;
-    let emptySpaces = false;
+    // let emptySpaces = false;
     while (usedSpot === false){
       //check if free spot available. if not, invert usedSpot and break out of loop
-      //eslint-disable-next-line
-      this.boardArr.forEach((element)=>{
-        element.forEach((element2)=> {
-          if(element2 === ''){
-            emptySpaces = true;
-          }
-        });
-      });
-      if(emptySpaces === false ){
-        this.result('tie');
-        break;
-      }
-
       if(this.boardArr[randRow][randCol] === this.playerToken ||
          this.boardArr[randRow][randCol] === this.pcToken )
-      {
-          randRow = Math.floor(Math.random()*3);
-          randCol = Math.floor(Math.random()*3);
+      {   
+        randRow = Math.floor(Math.random()*3);
+        randCol = Math.floor(Math.random()*3);
       }
-      else
-      {
-          this.markForPC(randRow,randCol);
-          usedSpot = true;
+      else { 
+        this.markForPC(randRow,randCol);
+        usedSpot = true;
       }
-      
     }
 
   }
@@ -170,8 +182,18 @@ class App extends Component {
         {/* options for player */}
         <div className='row colored-text'>
           <div>Choose your token: </div>
-          <button>X</button>
-          <button>O</button>
+          <button
+            onClick={()=>{ 
+              this.playerToken = 'X';
+              this.pcToken = 'O'; 
+            }}
+          >X</button>
+          <button
+            onClick={()=>{ 
+              this.playerToken = 'O';
+              this.pcToken = 'X'; 
+            }}
+          >O</button>
         </div>
       
         {/* board rows with play spaces */}
