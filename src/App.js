@@ -186,12 +186,14 @@ class App extends Component {
             onClick={()=>{ 
               this.playerToken = 'X';
               this.pcToken = 'O'; 
+              this.boardArr = [['','',''],['','',''],['','','']];
             }}
           >X</button>
           <button
             onClick={()=>{ 
               this.playerToken = 'O';
               this.pcToken = 'X'; 
+              this.boardArr = [['','',''],['','',''],['','','']];
             }}
           >O</button>
         </div>
