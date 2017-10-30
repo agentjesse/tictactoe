@@ -7,11 +7,10 @@ class App extends Component {
   constructor(props) {
     //make a call to super
     super(props);
-    //local variables
-    this.playerToken = 'X';
-    this.pcToken = 'O';
     //set the state
     this.state = {
+      pcToken: 'O',
+      playerToken: 'X',
       boardArr: [['','',''],['','',''],['','','']]
     };
   }
@@ -19,12 +18,12 @@ class App extends Component {
   mark(index1,index2){
     //mark players spot in state and render it also
     let copy = this.state.boardArr.map( (arr)=> arr.slice() );
-    copy[index1][index2] = this.playerToken;
+    copy[index1][index2] = this.state.playerToken;
     this.setState({ boardArr: copy });
     
     //---------win and tie check after PLAYERS last move
     let status = this.isGameOver(copy);
-    if (status === this.playerToken){
+    if (status === this.state.playerToken){
       this.result('win');
       return;//return early
     }else if (status === null){
@@ -37,7 +36,7 @@ class App extends Component {
 
     //---------lose and tie check after PC last move
     status = this.isGameOver(boardAfterPcTurn);
-    if (status === this.pcToken){
+    if (status === this.state.pcToken){
       this.result('lose');
     }else if (status === null){
       this.result();
@@ -60,9 +59,9 @@ class App extends Component {
 
   pcTurn(copy){
     //make an object using the minmax function that has indexes to use to mark the board
-    let moveObj = this.minMax(copy,0,this.pcToken);
+    let moveObj = this.minMax(copy,0,this.state.pcToken);
     //mark the board with the object's values
-    copy[moveObj.index1][moveObj.index2] = this.pcToken;
+    copy[moveObj.index1][moveObj.index2] = this.state.pcToken;
     this.setState({ boardArr:copy });
     return copy;
   }
@@ -89,7 +88,7 @@ class App extends Component {
             continue;
           }
           gridCopy[i][j] = player;
-          const value = this.minMax(gridCopy, depth+1, (player === this.playerToken)? this.pcToken : this.playerToken );
+          const value = this.minMax(gridCopy, depth+1, (player === this.state.playerToken)? this.state.pcToken : this.state.playerToken );
           values.push({
             cost:value,
             cell:{
@@ -100,7 +99,7 @@ class App extends Component {
         }
       }
 
-      if (player === this.pcToken){
+      if (player === this.state.pcToken){
         //grab the element in the array of greatest value according to a function
         const max = _.maxBy(values, (v)=>{
           return v.cost;
@@ -127,10 +126,10 @@ class App extends Component {
     else if(gameState === null){
       return 0;
     }//next line might cause errors, with this maybe not referring to this class anymore? 
-    else if(gameState === this.playerToken){
+    else if(gameState === this.state.playerToken){
       return depth - 10;
     }
-    else if(gameState === this.pcToken){
+    else if(gameState === this.state.pcToken){
       return 10 - depth;
     }
 
@@ -194,15 +193,15 @@ class App extends Component {
           <div>Choose your token: </div>
           <button
             onClick={()=>{ 
-              this.playerToken = 'X';
-              this.pcToken = 'O'; 
+              this.setState({ playerToken:'X' });
+              this.setState({ pcToken:'O' }); 
               this.result('cleanup');
             }}
           >X</button>
           <button
             onClick={()=>{ 
-              this.playerToken = 'O';
-              this.pcToken = 'X'; 
+              this.setState({ playerToken:'O' });
+              this.setState({ pcToken:'X' }); 
               this.result('cleanup');
             }}
           >O</button>
