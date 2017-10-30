@@ -9,11 +9,13 @@
   display: flex;
   flex-wrap: wrap;
 }
+
 .row{
   display: flex;
   width: 100%;
   justify-content: center;
 }
+
 .colored-text{
   font-family: 'Sacramento';
   margin: 1rem 0 0;
@@ -22,6 +24,7 @@
   color: rgb(117, 218, 255);
   text-shadow: 0.2rem 0.35rem 0.3rem rgb(0, 0, 0);
 }
+
 button{
   background-color:rgb(192, 0, 61);
   text-align: center;
@@ -36,9 +39,7 @@ button{
   border: 0.15rem outset rgba(255, 255, 255, 0.726);
   box-shadow: 0 0.2rem 0.3rem rgb(0, 0, 0);
 }
-.rightBtn{
-  /* margin-left: 0; */
-}
+
 .square{
   padding-top: 0.5rem;
   color: rgb(85, 0, 50);
