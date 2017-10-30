@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import _ from 'lodash';
 
 class App extends Component {
   //constructor function
@@ -10,55 +11,42 @@ class App extends Component {
     this.boardArr = [['','',''],['','',''],['','','']];
     this.playerToken = 'X';
     this.pcToken = 'O';
-    //set the state
-    this.state = {
-      playerToken: this.playerToken,//default to capital letters X or O
-      boardArr: this.boardArr
-    };
+    //set the state, this app doesn't use anything in a state object
+    // this.state = {
+    // };
   }
 
   mark(index1,index2){
-    //mark spot
+    // debugger
+    //mark players spot in state and render it also
     this.boardArr[index1][index2] = this.playerToken;
     this.forceUpdate();
-
-    this.checkPlayerWin();
-
-    //---------tie check after PLAYER last move
-    let emptySpaces = false;
-    this.boardArr.forEach((element)=>{
-      element.forEach((innerElement)=> {
-        if(innerElement === ''){
-          emptySpaces = true;
-        }
-      });
-    });
-    if(emptySpaces === false ){
+    //check if player won
+    let status = this.isGameOver(this.boardArr);
+    if (status === this.playerToken){
+      this.result('win');
+      return;//return early
+    }
+    //---------tie check after PLAYERS last move
+    else if(status === null){
       this.result();
+      return;//return early or pcturn will overload looking for a space
+    }
+   
+    //decide a spot for ai and place it on board...use minmax
+    this.pcTurn();
+
+    status = this.isGameOver(this.boardArr);
+    if (status === this.pcToken){
+      this.result('lose');
       return;
     }
-    this.pcTurn();
-    this.checkPCWin();
-    
-    //-------tie check after COMPUTERS last move
-    emptySpaces = false;
-    this.boardArr.forEach((element)=>{
-      element.forEach((innerElement)=> {
-        if(innerElement === ''){
-          emptySpaces = true;
-        }
-      });
-    });
-    if(emptySpaces === false ){
+    //---------tie check after PC last move
+    else if(status === null){
       this.result();
+      return;//return early or pcturn will overload looking for a space
     }
     
-  }
-
-  markForPC(index1,index2){
-    this.boardArr[index1][index2] = this.pcToken;
-    this.forceUpdate();
-    this.checkPCWin();
   }
 
   result(status){
@@ -66,113 +54,139 @@ class App extends Component {
       alert('Winner Winner Chicken Dinner!');
     } else if (status === 'lose'){
       alert('you lost');
-    } else {
+    } else if (status === 'cleanup'){
+      this.boardArr = [['','',''],['','',''],['','','']];
+      this.forceUpdate();
+    }else {
       alert('tie game');
     }
     this.boardArr = [['','',''],['','',''],['','','']];
   }
 
   pcTurn(){
-    
-    //choose random spot on array
-    let randRow = Math.floor(Math.random()*3);
-    let randCol = Math.floor(Math.random()*3);
+    //make an object using the minmax function that has indexes to use to mark the board
+    let moveObj = this.minMax(this.boardArr,0,this.pcToken);
+    //mark the board
+    this.boardArr[moveObj.index1][moveObj.index2] = this.pcToken;
+    this.forceUpdate();
+  }
 
-    //loop until free spot chosen. if the board is full escape loop.
-    let usedSpot = false;
-    // let emptySpaces = false;
-    while (usedSpot === false){
-      //check if free spot available. if not, invert usedSpot and break out of loop
-      if(this.boardArr[randRow][randCol] === this.playerToken ||
-         this.boardArr[randRow][randCol] === this.pcToken )
-      {   
-        randRow = Math.floor(Math.random()*3);
-        randCol = Math.floor(Math.random()*3);
+  minMax(board,depth,player){
+    //get state of the current board
+    const gameState = this.isGameOver(board);
+
+    if(gameState === false){
+      const values = [];
+
+      for(var i = 0; i<3 ; i++){
+        for(var j = 0; j<3 ; j++){
+
+          //clone the board array, how to do it is up to you.
+          // const gridCopy = _.cloneDeep(board);
+          // const gridCopy = board.map( (arr)=> arr.slice() );
+          let gridCopy = [];
+          for (var k = 0; k < 3; k++) {
+            gridCopy[k] = board[k].slice();
+          }
+          
+          if (gridCopy[i][j] !== ''){
+            continue;
+          }
+          gridCopy[i][j] = player;
+          const value = this.minMax(gridCopy, depth+1, (player === this.playerToken)? this.pcToken : this.playerToken );
+          values.push({
+            cost:value,
+            cell:{
+              index1:i,
+              index2:j
+            }
+          });
+        }
       }
-      else { 
-        this.markForPC(randRow,randCol);
-        usedSpot = true;
+
+      if (player === this.pcToken){
+        //grab the element in the array of greatest value according to a function
+        const max = _.maxBy(values, (v)=>{
+          return v.cost;
+        });
+        if (depth === 0){
+          return max.cell;
+        } else {
+          return max.cost;
+        }
       }
+      else {
+          //grab the element in the array of lowest value according to a function
+          const min = _.minBy(values, (v)=>{
+            return v.cost;
+          });
+          if (depth === 0){
+            return min.cell;
+          } else {
+            return min.cost;
+          }
+      }
+
+    }
+    else if(gameState === null){
+      return 0;
+    }//next line might cause errors, with this maybe not referring to this class anymore? 
+    else if(gameState === this.playerToken){
+      return depth - 10;
+    }
+    else if(gameState === this.pcToken){
+      return 10 - depth;
     }
 
   }
 
-  checkPlayerWin(){
+  //function to check game state. returns: the winning token, false for an empty space available, or null for tie game
+  isGameOver(board){
     //check for all winning lines
     //diagonals
-         if( this.boardArr[0][0] === this.playerToken &&
-             this.boardArr[1][1] === this.playerToken &&
-             this.boardArr[2][2] === this.playerToken )
-             { this.result('win') }
-    else if( this.boardArr[0][2] === this.playerToken &&
-             this.boardArr[1][1] === this.playerToken &&
-             this.boardArr[2][0] === this.playerToken )
-             { this.result('win') }
+    if( board[0][0] !== '' && board[0][0] === board[1][1] && 
+        board[1][1] === board[2][2] )
+    { //if the checked line is found, return the winning token from any point on that line
+      return board[0][0]; 
+    }
+    else if( board[0][2] !== '' && board[0][2] === board[1][1] && 
+             board[1][1] === board[2][0] )
+    { return board[0][2] }
     //horizontals
-    else if( this.boardArr[0][0] === this.playerToken &&
-             this.boardArr[0][1] === this.playerToken &&
-             this.boardArr[0][2] === this.playerToken )
-             { this.result('win') }
-    else if( this.boardArr[1][0] === this.playerToken &&
-             this.boardArr[1][1] === this.playerToken &&
-             this.boardArr[1][2] === this.playerToken )
-             { this.result('win') }
-    else if( this.boardArr[2][0] === this.playerToken &&
-             this.boardArr[2][1] === this.playerToken &&
-             this.boardArr[2][2] === this.playerToken )
-             { this.result('win') }
+    else if( board[0][0] !== '' && board[0][0] === board[0][1] && 
+             board[0][1] === board[0][2] )
+    { return board[0][0] }
+    else if( board[1][0] !== '' && board[1][0] === board[1][1] && 
+             board[1][1] === board[1][2] )
+    { return board[1][0] }
+    else if( board[2][0] !== '' && board[2][0] === board[2][1] && 
+             board[2][1] === board[2][2] )
+    { return board[2][0] }
     //verticals
-    else if( this.boardArr[0][0] === this.playerToken &&
-             this.boardArr[1][0] === this.playerToken &&
-             this.boardArr[2][0] === this.playerToken )
-             { this.result('win') }
-    else if( this.boardArr[0][1] === this.playerToken &&
-             this.boardArr[1][1] === this.playerToken &&
-             this.boardArr[2][1] === this.playerToken )
-             { this.result('win') }
-    else if( this.boardArr[0][2] === this.playerToken &&
-             this.boardArr[1][2] === this.playerToken &&
-             this.boardArr[2][2] === this.playerToken )
-             { this.result('win') }
-  }
+    else if( board[0][0] !== '' && board[0][0] === board[1][0] && 
+             board[1][0] === board[2][0] )
+    { return board[0][0] }
+    else if( board[0][1] !== '' && board[0][1] === board[1][1] && 
+             board[1][1] === board[2][1] )
+    { return board[0][1] }
+    else if( board[0][2] !== '' && board[0][2] === board[1][2] && 
+             board[1][2] === board[2][2] )
+    { return board[0][2] }
 
-  checkPCWin(){
-    //check for all winning lines
-    //diagonals
-         if( this.boardArr[0][0] === this.pcToken &&
-             this.boardArr[1][1] === this.pcToken &&
-             this.boardArr[2][2] === this.pcToken )
-             { this.result('lose') }
-    else if( this.boardArr[0][2] === this.pcToken &&
-             this.boardArr[1][1] === this.pcToken &&
-             this.boardArr[2][0] === this.pcToken )
-             { this.result('lose') }
-    //horizontals
-    else if( this.boardArr[0][0] === this.pcToken &&
-             this.boardArr[0][1] === this.pcToken &&
-             this.boardArr[0][2] === this.pcToken )
-             { this.result('lose') }
-    else if( this.boardArr[1][0] === this.pcToken &&
-             this.boardArr[1][1] === this.pcToken &&
-             this.boardArr[1][2] === this.pcToken )
-             { this.result('lose') }
-    else if( this.boardArr[2][0] === this.pcToken &&
-             this.boardArr[2][1] === this.pcToken &&
-             this.boardArr[2][2] === this.pcToken )
-             { this.result('lose') }
-    //verticals
-    else if( this.boardArr[0][0] === this.pcToken &&
-             this.boardArr[1][0] === this.pcToken &&
-             this.boardArr[2][0] === this.pcToken )
-             { this.result('lose') }
-    else if( this.boardArr[0][1] === this.pcToken &&
-             this.boardArr[1][1] === this.pcToken &&
-             this.boardArr[2][1] === this.pcToken )
-             { this.result('lose') }
-    else if( this.boardArr[0][2] === this.pcToken &&
-             this.boardArr[1][2] === this.pcToken &&
-             this.boardArr[2][2] === this.pcToken )
-             { this.result('lose') }
+    //no winner yet? check for empty spaces, return false if one is found, game is not over
+    let found = false;
+    board.forEach((element)=>{
+      element.forEach((innerElement)=> {
+        if(innerElement === ''){
+          found = true;
+        }
+      });
+    });
+    if (found){ return false }
+
+    //no winner and no empty spaces? return null indicating tie
+    return null;
+
   }
 
   render() {
@@ -186,14 +200,14 @@ class App extends Component {
             onClick={()=>{ 
               this.playerToken = 'X';
               this.pcToken = 'O'; 
-              this.boardArr = [['','',''],['','',''],['','','']];
+              this.result('cleanup');
             }}
           >X</button>
           <button
             onClick={()=>{ 
               this.playerToken = 'O';
               this.pcToken = 'X'; 
-              this.boardArr = [['','',''],['','',''],['','','']];
+              this.result('cleanup');
             }}
           >O</button>
         </div>
