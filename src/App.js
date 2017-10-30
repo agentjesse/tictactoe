@@ -190,7 +190,10 @@ class App extends Component {
 
         {/* options for player */}
         <div className='row colored-text'>
-          <div>Choose your token: </div>
+          <div>Choose Your</div>
+        </div>
+        <div className='row colored-text'>
+          <div>Token</div>
           <button
             onClick={()=>{ 
               this.setState({ playerToken:'X' });
@@ -198,7 +201,7 @@ class App extends Component {
               this.result('cleanup');
             }}
           >X</button>
-          <button
+          <button className='rightBtn'
             onClick={()=>{ 
               this.setState({ playerToken:'O' });
               this.setState({ pcToken:'X' }); 
