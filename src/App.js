@@ -8,43 +8,39 @@ class App extends Component {
     //make a call to super
     super(props);
     //local variables
-    this.boardArr = [['','',''],['','',''],['','','']];
     this.playerToken = 'X';
     this.pcToken = 'O';
-    //set the state, this app doesn't use anything in a state object
-    // this.state = {
-    // };
+    //set the state
+    this.state = {
+      boardArr: [['','',''],['','',''],['','','']]
+    };
   }
 
   mark(index1,index2){
-    // debugger
     //mark players spot in state and render it also
-    this.boardArr[index1][index2] = this.playerToken;
-    this.forceUpdate();
-    //check if player won
-    let status = this.isGameOver(this.boardArr);
+    let copy = this.state.boardArr.map( (arr)=> arr.slice() );
+    copy[index1][index2] = this.playerToken;
+    this.setState({ boardArr: copy });
+    
+    //---------win and tie check after PLAYERS last move
+    let status = this.isGameOver(copy);
     if (status === this.playerToken){
       this.result('win');
       return;//return early
-    }
-    //---------tie check after PLAYERS last move
-    else if(status === null){
+    }else if (status === null){
       this.result();
       return;//return early or pcturn will overload looking for a space
     }
    
     //decide a spot for ai and place it on board...use minmax
-    this.pcTurn();
+    let boardAfterPcTurn = this.pcTurn(copy);
 
-    status = this.isGameOver(this.boardArr);
+    //---------lose and tie check after PC last move
+    status = this.isGameOver(boardAfterPcTurn);
     if (status === this.pcToken){
       this.result('lose');
-      return;
-    }
-    //---------tie check after PC last move
-    else if(status === null){
+    }else if (status === null){
       this.result();
-      return;//return early or pcturn will overload looking for a space
     }
     
   }
@@ -55,20 +51,20 @@ class App extends Component {
     } else if (status === 'lose'){
       alert('you lost');
     } else if (status === 'cleanup'){
-      this.boardArr = [['','',''],['','',''],['','','']];
-      this.forceUpdate();
+      this.setState({ boardArr: [['','',''],['','',''],['','','']] });
     }else {
       alert('tie game');
     }
-    this.boardArr = [['','',''],['','',''],['','','']];
+    this.setState({ boardArr: [['','',''],['','',''],['','','']] });
   }
 
-  pcTurn(){
+  pcTurn(copy){
     //make an object using the minmax function that has indexes to use to mark the board
-    let moveObj = this.minMax(this.boardArr,0,this.pcToken);
-    //mark the board
-    this.boardArr[moveObj.index1][moveObj.index2] = this.pcToken;
-    this.forceUpdate();
+    let moveObj = this.minMax(copy,0,this.pcToken);
+    //mark the board with the object's values
+    copy[moveObj.index1][moveObj.index2] = this.pcToken;
+    this.setState({ boardArr:copy });
+    return copy;
   }
 
   minMax(board,depth,player){
@@ -214,19 +210,19 @@ class App extends Component {
       
         {/* board rows with play spaces */}
         <div className='row'>
-          <div className='square' onClick={()=>{ this.mark(0,0) }}>{this.boardArr[0][0]}</div>
-          <div className='square' onClick={()=>{ this.mark(0,1) }}>{this.boardArr[0][1]}</div>
-          <div className='square' onClick={()=>{ this.mark(0,2) }}>{this.boardArr[0][2]}</div>
+          <div className='square' onClick={()=>{ this.mark(0,0) }}>{this.state.boardArr[0][0]}</div>
+          <div className='square' onClick={()=>{ this.mark(0,1) }}>{this.state.boardArr[0][1]}</div>
+          <div className='square' onClick={()=>{ this.mark(0,2) }}>{this.state.boardArr[0][2]}</div>
         </div>
         <div className='row'>
-          <div className='square' onClick={()=>{ this.mark(1,0) }}>{this.boardArr[1][0]}</div>
-          <div className='square' onClick={()=>{ this.mark(1,1) }}>{this.boardArr[1][1]}</div>
-          <div className='square' onClick={()=>{ this.mark(1,2) }}>{this.boardArr[1][2]}</div>
+          <div className='square' onClick={()=>{ this.mark(1,0) }}>{this.state.boardArr[1][0]}</div>
+          <div className='square' onClick={()=>{ this.mark(1,1) }}>{this.state.boardArr[1][1]}</div>
+          <div className='square' onClick={()=>{ this.mark(1,2) }}>{this.state.boardArr[1][2]}</div>
         </div>
         <div className='row'>
-          <div className='square' onClick={()=>{ this.mark(2,0) }}>{this.boardArr[2][0]}</div>
-          <div className='square' onClick={()=>{ this.mark(2,1) }}>{this.boardArr[2][1]}</div>
-          <div className='square' onClick={()=>{ this.mark(2,2) }}>{this.boardArr[2][2]}</div>
+          <div className='square' onClick={()=>{ this.mark(2,0) }}>{this.state.boardArr[2][0]}</div>
+          <div className='square' onClick={()=>{ this.mark(2,1) }}>{this.state.boardArr[2][1]}</div>
+          <div className='square' onClick={()=>{ this.mark(2,2) }}>{this.state.boardArr[2][2]}</div>
         </div>
 
       </div>
