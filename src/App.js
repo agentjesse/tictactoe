@@ -16,6 +16,11 @@ class App extends Component {
   }
 
   mark(index1,index2){
+    // block reusing spaces
+    if( this.state.boardArr[index1][index2] !== '' ){
+      return
+    }
+    
     //mark players spot in state and render it also
     let copy = this.state.boardArr.map( (arr)=> arr.slice() );
     copy[index1][index2] = this.state.playerToken;
