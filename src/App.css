@@ -54,3 +54,12 @@ button{
   border-radius: 0.5rem;
   box-shadow: 0.2rem 0.4rem 0.5rem rgb(0, 0, 0);
 }
+
+p{
+  color: rgb(126, 156, 156);
+  max-width: 300px;
+}
+a{
+  color: rgb(106, 206, 206);
+  text-decoration: none;
+}

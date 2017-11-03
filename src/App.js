@@ -232,6 +232,10 @@ class App extends Component {
           <div className='square' onClick={()=>{ this.mark(2,2) }}>{this.state.boardArr[2][2]}</div>
         </div>
 
+        <div className='row'>
+          <p>Ported into react using the algorithm from <a href="https://youtu.be/ra2_rKV0mDE">Cody Seibert's Guide</a></p>
+        </div>
+
       </div>
     );
   }
